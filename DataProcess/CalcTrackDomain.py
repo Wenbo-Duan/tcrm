@@ -76,7 +76,7 @@ class CalcTrackDomain(object):
             track_limits['xMax'] = max(track_limits['xMax'], lon)
             track_limits['yMin'] = min(track_limits['yMin'], lat)
             track_limits['yMax'] = max(track_limits['yMax'], lat)
-
+                # if TC pass through the wind field domain - WD Comment
             if (self.wf_domain['xMin'] <= lon <= self.wf_domain['xMax']) & \
                (self.wf_domain['yMin'] <= lat <= self.wf_domain['yMax']):
 

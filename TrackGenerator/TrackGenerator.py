@@ -1002,6 +1002,7 @@ class TrackGenerator(object):
                 deltaP = self.offshorePoci - self.offshorePressure
                 alpha = 0.03515 + 0.000435 * deltaP +\
                         0.002865 * self.landfallSpeed + lfeps
+                        # alpha = 0.0034 + 0.0010 * deltaP + eps ## for New England Coast (Boston)
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
