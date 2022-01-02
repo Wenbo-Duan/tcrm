@@ -58,6 +58,44 @@ def rmax(dp, lat, eps, coeffs=[3.5843946536979779,-0.0045486143609339436,
     rm = np.exp(yy)
     return rm
 
+def rmax_Powell_2005(dp, lat, eps, coeffs=[2.0633,0.0182,-0.00019008,0.0007336]):
+    """
+    Calculate radius to maximum wind based on pressure deficit and
+    latitude. This function allows for the random variate to be set
+    when calling the function. Default coefficients for the functional
+    form of ln(Rmw) are given, based on Powell et al. 2005
+
+    State of Florida hurricane loss projection model: Atmospheric science component
+    
+    ln(Rmw) = a + b*dp + c*dp^2 + d*lat^2 + eps
+
+    eps is not included in the coefficients (though that may be considered
+    by some to be more logical), so that it can remain constant for a single
+    TC event. 
+
+    :param dp: Central pressure deficit (hPa)
+    :param lat: Latitude of the storm (degrees)
+    :param eps: random variate. This would normally be held constant
+                for a single storm.
+    :param coeffs: A list of coefficients for the functional form. Default
+                   values are based on JTWC data from the southern hemisphere.
+
+    :returns: radius to maximum wind value.
+
+    """
+    if len(coeffs) < 3:
+        LOG.warn("Insufficient coefficients for rmw calculation!")
+        LOG.warn("Using default values from Powell 2005")
+        coeffs = [2.0633,0.0182,-0.00019008,0.0007336]
+
+    if isinstance(dp, (np.ndarray, list)) and \
+      isinstance(lat, (np.ndarray, list)):
+        assert len(dp) == len(lat)
+    yy = coeffs[0] + coeffs[1]*dp + coeffs[2] * dp * dp +\
+         coeffs[3] * lat * lat + eps
+    rm = np.exp(yy)
+    return rm
+
 def fitRmax(rmw, dp, lat):
     """
     Fit Rmw data to a function of pressure deficit and latitude.

@@ -399,6 +399,7 @@ class TrackGenerator(object):
             pressure_stats.nc
             bearing_stats.nc
             pressure_rate_stats.nc
+            rmax_stats.nc - added by WD
 
         in the :attr:`processPath` directory.
         """
@@ -431,6 +432,11 @@ class TrackGenerator(object):
         log.debug('Loading cell statistics for pressure_rate from netcdf file')
         self.dpStats = init('pressure_rate')
         self.dpStats.load(pjoin(self.processPath, 'pressure_rate_stats.nc'))
+
+        # # load statistic for rmax rate - WD
+        # log.debug('Loading cell statistics for rmax rate from netcdf file')
+        # self.dsStats = init('rmax_rate')
+        # self.dsStats.load(pjoin(self.processPath, 'rmax_rate_stats.nc'))
 
     def generateTracks(self, nTracks, simId, initLon=None, initLat=None,
                        initSpeed=None, initBearing=None,
@@ -542,6 +548,7 @@ class TrackGenerator(object):
             return track.rMax[0] < 100.
 
         def validInitPressure(track):
+            # return false if initial pressure difference is smaller than 1 hPa
             if track.EnvPressure[0] - track.CentralPressure[0] < 1.0:
                 log.critical("Initial pressure difference too small")
             return (track.EnvPressure[0] - track.CentralPressure[0] > 1.0)
@@ -634,7 +641,9 @@ class TrackGenerator(object):
             # Sample an initial maximum radius if none is provided
 
             if not initRmax:
-                if not self.allCDFInitSize:
+                #if not self.allCDFInitSize:
+                    # check if tg has arribute allCDFInitSize which is the emperical CDF of rmax - WD
+                if getattr(self,'allCDFInitSize') is None:
                     cdfSize = self.cdfSize[:, [0, 2]]
                 else:
                     ind = self.allCDFInitSize[:, 0] == initCellNum
@@ -642,15 +651,18 @@ class TrackGenerator(object):
 
                 dp = initEnvPressure - genesisPressure
                 self.rmwEps = np.random.normal(0, scale=0.335)
-                genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
+                # genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
+                # test impact of Powell 2005 fomula
+                genesisRmax = trackSize.rmax_Powell_2005(dp, genesisLat, self.rmwEps)
 
                 # Censor the initial Rmax to be < 100 km.
                 if genesisRmax > 100.:
                     while genesisRmax > 100.:
                         self.rmwEps = np.random.normal(0, scale=0.335)
-                        genesisRmax = trackSize.rmax(dp,
-                                                     genesisLat,
-                                                     self.rmwEps)
+                        # genesisRmax = trackSize.rmax(dp,
+                        #                              genesisLat,
+                        #                              self.rmwEps)
+                        genesisRmax = trackSize.rmax_Powell_2005(dp, genesisLat, self.rmwEps)
 
             else:
                 genesisRmax = initRmax
@@ -709,7 +721,7 @@ class TrackGenerator(object):
                     results.append(track)
                     log.debug("Completed track {0:03d}-{1:04d}".\
                               format(*track.trackId))
-                    j += 1
+                    j += 1 # ensure every track is valid before add to result
             else:
                 log.debug("Eliminated invalid track")
 
@@ -909,7 +921,8 @@ class TrackGenerator(object):
 
         # Initialise the track
         poci_eps = normal(0., 2.5717)
-        lfeps = lognorm(0.69527, -0.06146, 0.0471)
+        # lfeps = lognorm(0.69527, -0.06146, 0.0471)
+        lfeps = normal(0., 0.0114) # Vickery 2005 for New England
 
         age[0] = 0
         dates[0] = initTime
@@ -1000,9 +1013,9 @@ class TrackGenerator(object):
             if onLand:
                 tol += float(self.dt)
                 deltaP = self.offshorePoci - self.offshorePressure
-                alpha = 0.03515 + 0.000435 * deltaP +\
-                        0.002865 * self.landfallSpeed + lfeps
-                        # alpha = 0.0034 + 0.0010 * deltaP + eps ## for New England Coast (Boston)
+                # alpha = 0.03515 + 0.000435 * deltaP +\
+                #        0.002865 * self.landfallSpeed + lfeps
+                alpha = 0.0034 + 0.0010 * deltaP + lfeps ## for New England Coast (Boston)
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
@@ -1033,7 +1046,7 @@ class TrackGenerator(object):
             # loaded then sample and update the maximum radius.
             # Otherwise, keep the maximum radius constant.
 
-            if self.allCDFInitSize:
+            if getattr(self,'allCDFInitSize') is not None:
                 self._stepSizeChange(cellNum, i, onLand)
                 rmax[i] = rmax[i - 1] + self.ds * self.dt
                 # if the radius goes below 1.0, then do an
@@ -1042,7 +1055,8 @@ class TrackGenerator(object):
                     rmax[i] = rmax[i - 1] - self.ds * self.dt
             else:
                 dp = poci[i] - pressure[i]
-                rmax[i] = trackSize.rmax(dp, lat[i], self.rmwEps)
+                # rmax[i] = trackSize.rmax(dp, lat[i], self.rmwEps)
+                rmax[i] = trackSize.rmax_Powell_2005(dp, lat[i], self.rmwEps)
 
             # Update the distance and the age of the cyclone
 

@@ -17,7 +17,8 @@ import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 
 from PlotInterface.figures import LaggedRegressionFigure
-from scipy.stats import linregress, probplot, frechet_l
+# change frechet_l to weibull_max - WD
+from scipy.stats import linregress, probplot, weibull_max
 import numpy as np
 
 import seaborn as sns
@@ -180,7 +181,8 @@ class PlotData(object):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        # change frechet_l to weibull_max - WD
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})
@@ -281,7 +283,8 @@ class PlotPressure(PlotData):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        # change frechet_l to weibull_max - WD
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})

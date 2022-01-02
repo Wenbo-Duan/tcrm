@@ -277,3 +277,18 @@ class StatInterface(object):
         log.debug('Saving cell statistics for bearing to netcdf file')
         dbStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
 
+        # # Calculate stats for rmax - WD
+        # log.debug('Calculating cell statistics for rmax')
+        # vStats = calculate('all_rmax')
+        # vStats.plotStatistics(pjoin(self.outputPath, 'plots',
+        #                             'stats', 'rmax_stats'))
+        # log.debug('Saving cell statistics for rmax to netcdf file')
+        # vStats.save(pjoin(path, 'rmax_stats.nc'), 'rmax')
+
+        # log.debug('Calculating cell statistics for rmax rate')
+        # vStats = calculate('rmax_rate')
+        # vStats.plotStatistics(pjoin(self.outputPath, 'plots',
+        #                             'stats', 'rmax_rate_stats'))
+        # log.debug('Saving cell statistics for rmax rate to netcdf file')
+        # vStats.save(pjoin(path, 'rmax_rate_stats.nc'), 'rmax_rate')
+

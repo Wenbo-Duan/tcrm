@@ -21,6 +21,7 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('shapely.geos').setLevel(logging.WARNING)
 
 import database
+import database.queries
 import numpy as np
 import numpy.ma as ma
 import matplotlib
