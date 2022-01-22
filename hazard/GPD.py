@@ -69,7 +69,10 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     :param shape: shape parameter
     """
     recs = data[data > 0]
-    mu = scoreatpercentile(data, threshold)
+    # mu = scoreatpercentile(data, threshold)
+    # mu = scoreatpercentile(recs, threshold) # calculate threshold using obersavations with speed values - WD
+    mu = recs[-6] # calculate threshold using obersavations with speed values - WD
+
 
     loc, scl, shp = [missingValue, missingValue, missingValue]
     Rp = missingValue * np.ones(len(years))
@@ -77,6 +80,7 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     log.debug("The length of the data currently is {0}".format(len(data)))
 
     if len(data) < minrecords:
+        log.debug("WD - return due to less than 10 data point")
         return Rp, loc, scl, shp
 
     # Fill each day that a cyclone isn't recorded with zero so we get 
@@ -87,15 +91,21 @@ def gpdfit(data, years, numsim, missingValue=-9999,
 
     rate = float(len(datafilled[datafilled > mu])) / float(len(datafilled))
     log.debug("The calculated rate is: {0}".format(rate))
+    log.debug("WD - Number of exceedence is: {0}".format(len(datafilled[datafilled > mu])))
 
+    # try to fit distribution with the largest 50 data point. - WD
+    
+    
     try:
         shape, location, scale = genpareto.fit(datafilled[datafilled > mu],
-                                               floc = mu)
+                                                floc = mu)
     except:
+        log.debug("WD - fitting error")
         return Rp, loc, scl, shp
 
     Rpeval = gpdReturnLevel(years, mu, shape, scale, rate)
     if shape > 0: # or Rpeval[0] < 0.0:
+        log.debug("WD - return due to positive shape factor")
         return Rp, loc, scl, shp
     else:
         return Rpeval, location, scale, shape

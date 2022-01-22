@@ -231,6 +231,10 @@ class AutoPlotHazard(object):
                 data[-len(recs):] = recs['wspd']
 
             allevents = np.sort(data)
+            # Convert event wind speed to plot unit (mph for USA) - WD
+            allevents = metutils.convert(allevents, 'mps',
+                                         self.plotUnits.units)
+
             log.debug("allevents length = {0}".format(len(allevents)))
 
             placeWspd = metutils.convert(wspd, 'mps',

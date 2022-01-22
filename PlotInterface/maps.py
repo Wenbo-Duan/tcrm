@@ -101,14 +101,15 @@ def selectColormap(data_range, percent=0.1):
         palette = sns.color_palette("RdBu", 7)
         cmap = sns.blend_palette(palette, as_cmap=True)
     else:
-        palette = [(1, 1, 1),
-                   (0.000, 0.627, 0.235),
-                   (0.412, 0.627, 0.235), 
-                   (0.663, 0.780, 0.282),
-                   (0.957, 0.812, 0.000),
-                   (0.925, 0.643, 0.016),
-                   (0.835, 0.314, 0.118),
-                   (0.780, 0.086, 0.118)]
+        palette = [(0, 0, 0), # changed to black to distinguish 'no data' and '<80mph' - WD
+                    (0.000, 0.627, 0.235),
+                    (0.412, 0.627, 0.235), 
+                    (0.663, 0.780, 0.282),
+                    (0.957, 0.812, 0.000),
+                    (0.925, 0.643, 0.016),
+                    (0.835, 0.314, 0.118),
+                    (0.780, 0.086, 0.118)]
+        # palette = sns.color_palette("vlag", 7)
         cmap = sns.blend_palette(palette, as_cmap=True)
 
     return cmap
@@ -125,6 +126,7 @@ class MapFigure(Figure):
         Figure.__init__(self)
         self.subfigures = []
         palette = sns.color_palette("YlOrRd", 7)
+        # palette = sns.color_palette("vlag", 10) # - WD
         self.cmap = sns.blend_palette(palette, as_cmap=True)
 
         #self.canvas = FigureCanvas

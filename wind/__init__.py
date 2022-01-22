@@ -253,11 +253,12 @@ class WindfieldAroundTrack(object):
         bearing = np.zeros_like(cGridX, dtype='f')
         gust = np.zeros_like(cGridX, dtype='f')
         pressure = np.ones_like(cGridX, dtype='f') * envPressure
-
+        # lon lat of track data on grid - WD
         lonCDegree = np.array(100. * self.track.Longitude, dtype=int)
         latCDegree = np.array(100. * self.track.Latitude, dtype=int)
 
         # We only consider the times when the TC track falls in the region
+        # may be we can filter by lonCDegree and latCDegree with minLat minLon etc - WD
         timesInRegion = np.where((xMin <= self.track.Longitude) &
                                  (self.track.Longitude <= xMax) &
                                  (yMin <= self.track.Latitude) &
@@ -739,10 +740,19 @@ def inRegion(t, gridLimit, margin):
     xMax = gridLimit['xMax'] + margin
     yMin = gridLimit['yMin'] - margin
     yMax = gridLimit['yMax'] + margin
-    return ((xMin <= t.Longitude.max()) and
-            (t.Longitude.min() <= xMax) and
-            (yMin <= t.Latitude.max()) and
-            (t.Latitude.min() <= yMax))
+    
+    
+   # change the filter to actually filter the track if it enters the simulation grid - WD
+    return np.size(np.where((xMin <= t.Longitude) &
+             (t.Longitude <= xMax) &
+             (yMin <= t.Latitude) &
+             (t.Latitude <= yMax))) != 0
+
+    # origianl code
+    # return ((xMin <= t.Longitude.max()) and
+    #         (t.Longitude.min() <= xMax) and
+    #         (yMin <= t.Latitude.max()) and
+    #         (t.Latitude.min() <= yMax))
 
 def filterTracks(tracks, gridLimit, margin):
     """

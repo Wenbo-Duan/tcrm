@@ -30,14 +30,13 @@ from scipy.interpolate import interp1d
 
 import inspect
 
-try:
-    import lmoments as lmom
-except ImportError:
+# try:
+#     import lmoments as lmom
+# except ImportError:
     # If not, load ported python version of required functions
     # (note: this runs about half the speed of the LMOMENTS fortran package)
-    import Utilities.lmomentFit as lmom
-    log.debug('LMOMENTS package not found - reverting to slower python' +
-              'version of code')
+import Utilities.lmomentFit as lmom # use python package directly - WD
+log.debug('LMOMENTS package not found - reverting to slower python' + 'version of code')
 
 # Average number of observations per year: daily observations
 NPYR = 365.25 
@@ -107,9 +106,11 @@ class GEVDistribution(ExtremeValueDistribution):
             # not all equal, and where there are 50 or more valid (>0) values.
             if data[ii].min() != data[ii].max():
                 if len(ii) >= self.minrecords:
-                    l1, l2, l3 = lmom.samlmu(data, 3) # find 3 l-moments
+                    # l1, l2, l3 = lmom.samlmu(data, 3) # find 3 l-moments
+                    # seems like samlmu return t3 directly, no need to calculate again - WD
+                    l1, l2, t3 = lmom.samlmu(data, 3) # find 3 l-moments
                     # t3 = L-skewness (Hosking 1990)
-                    t3 = l3 / l2
+                    # t3 = l3 / l2
                     if (l2 <= 0.) or (np.abs(t3) >= 1.):
                         # Reject points where the second l-moment is negative
                         # or the ratio of the third to second is > 1, i.e. positive

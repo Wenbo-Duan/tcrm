@@ -103,7 +103,7 @@ class TileGrid(object):
 
         """
 
-
+        # index of wind domain in the matrix of larger domain which includes the margin area - WD
         ii, = ((np.round(wf_lon*1000).astype(int) >=
                 int(gridLimit['xMin']*1000)) &
                (np.round(wf_lon*1000).astype(int) <=
@@ -300,7 +300,7 @@ class HazardCalculator(object):
 
         if self.evd == 'GPD':
             log.info("Using the GPD distribution for the hazard curves")
-            Vr = loadFilesFromPath(self.inputPath, tilelimits) 
+            Vr = loadFilesFromPath(self.inputPath, tilelimits) # Vr: vmax of wind field, unit : m/s
             Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
         elif self.evd == 'GEV':
@@ -708,6 +708,7 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
 
     """
 
+    # sort value on each grid point - WD
     Vr.sort(axis=0) #axis 0 = year
     Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
     loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
