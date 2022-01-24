@@ -265,7 +265,7 @@ class TrackGenerator(object):
     """
 
     def __init__(self, processPath, gridLimit, gridSpace, gridInc, mslp,
-                 landfall, innerGridLimit=None, dt=1.0, maxTimeSteps=360,
+                 landfall, landfallRegion, innerGridLimit=None, dt=1.0, maxTimeSteps=360,
                  sizeMean=46.5, sizeStdDev=0.5):
         self.processPath = processPath
         self.gridLimit = gridLimit
@@ -273,6 +273,7 @@ class TrackGenerator(object):
         self.gridInc = gridInc
         self.mslp = mslp
         self.landfall = landfall
+        self.landfallRegion = landfallRegion
         self.innerGridLimit = innerGridLimit
         self.dt = dt
         self.maxTimeSteps = maxTimeSteps
@@ -922,7 +923,18 @@ class TrackGenerator(object):
         # Initialise the track
         poci_eps = normal(0., 2.5717)
         # lfeps = lognorm(0.69527, -0.06146, 0.0471)
-        lfeps = normal(0., 0.0114) # Vickery 2005 for New England
+        
+        # landfall std based on config input - WD
+        if self.landfallRegion == 'New_England':
+            lfeps = normal(0., 0.0114) # Vickery 2005 for New England
+        elif self.landfallRegion == 'Mid_Atlantic':
+            lfeps = normal(0., 0.0161) # Vickery 2005 for Mid Atlantic
+        elif self.landfallRegion == 'Florida':
+            lfeps = normal(0., 0.0158) # Vickery 2005 for Florida Peninsula Coast
+        elif self.landfallRegion == 'Gulf':
+            lfeps = normal(0., 0.0169) # Vickery 2005 for Gulf Coast
+            
+        # lfeps = normal(0., 0.0114) # Vickery 2005 for New England
 
         age[0] = 0
         dates[0] = initTime
@@ -1015,7 +1027,15 @@ class TrackGenerator(object):
                 deltaP = self.offshorePoci - self.offshorePressure
                 # alpha = 0.03515 + 0.000435 * deltaP +\
                 #        0.002865 * self.landfallSpeed + lfeps
-                alpha = 0.0034 + 0.0010 * deltaP + lfeps ## for New England Coast (Boston)
+                # check which landfall decay equation to use based on config input - WD
+                if self.landfallRegion == 'New_England':
+                    alpha = 0.0034 + 0.0010 * deltaP + lfeps ## for New England Coast (Boston)
+                elif self.landfallRegion == 'Mid_Atlantic':
+                    alpha = 0.0364 + 0.0016 * deltaP * speed[i] / rmax[i - 1] + lfeps
+                elif self.landfallRegion == 'Florida':
+                    alpha = 0.0225 + 0.0017 * deltaP * speed[i] / rmax[i - 1] + lfeps
+                elif self.landfallRegion == 'Gulf':
+                    alpha = 0.0413 + 0.0018 * deltaP * speed[i] / rmax[i - 1] + lfeps
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
@@ -1762,6 +1782,7 @@ def run(configFile, callback=None):
     outputPath = config.get('Output', 'Path')
     nSimulations = config.getint('TrackGenerator', 'NumSimulations')
     maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
+    landfallRegion = config.get('TrackGenerator', 'Landfall') # indentifer for landfall equations - WD
     dt = config.getfloat('TrackGenerator', 'TimeStep')
     fmt = config.get('TrackGenerator', 'Format')
     gridSpace = config.geteval('Region', 'GridSpace')
@@ -1867,8 +1888,8 @@ def run(configFile, callback=None):
     # Load the track generator
 
     tg = TrackGenerator(processPath, gridLimit, gridSpace, gridInc,
-                        mslp, landfall, dt=dt,
-                        maxTimeSteps=maxTimeSteps)
+                        mslp, landfall,landfallRegion, dt=dt,
+                        maxTimeSteps=maxTimeSteps ) # added LandfallRegion - WD
 
     tg.loadInitialConditionDistributions()
     tg.loadCellStatistics()
