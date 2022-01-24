@@ -1031,11 +1031,11 @@ class TrackGenerator(object):
                 if self.landfallRegion == 'New_England':
                     alpha = 0.0034 + 0.0010 * deltaP + lfeps ## for New England Coast (Boston)
                 elif self.landfallRegion == 'Mid_Atlantic':
-                    alpha = 0.0364 + 0.0016 * deltaP * speed[i] / rmax[i - 1] + lfeps
+                    alpha = 0.0364 + 0.0016 * deltaP * self.landfallSpeed / rmax[i - 1] + lfeps
                 elif self.landfallRegion == 'Florida':
-                    alpha = 0.0225 + 0.0017 * deltaP * speed[i] / rmax[i - 1] + lfeps
+                    alpha = 0.0225 + 0.0017 * deltaP * self.landfallSpeed / rmax[i - 1] + lfeps
                 elif self.landfallRegion == 'Gulf':
-                    alpha = 0.0413 + 0.0018 * deltaP * speed[i] / rmax[i - 1] + lfeps
+                    alpha = 0.0413 + 0.0018 * deltaP * self.landfallSpeed / rmax[i - 1] + lfeps
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
