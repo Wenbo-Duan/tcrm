@@ -741,12 +741,17 @@ def inRegion(t, gridLimit, margin):
     yMin = gridLimit['yMin'] - margin
     yMax = gridLimit['yMax'] + margin
     
+   # change the filter to actually filter the track if it enters the windfield grid - WD
+    return np.size(np.where((gridLimit['xMin'] <= t.Longitude) &
+             (t.Longitude <= gridLimit['xMax']) &
+             (gridLimit['yMin'] <= t.Latitude) &
+             (t.Latitude <= gridLimit['yMax']))) != 0
     
-   # change the filter to actually filter the track if it enters the simulation grid - WD
-    return np.size(np.where((xMin <= t.Longitude) &
-             (t.Longitude <= xMax) &
-             (yMin <= t.Latitude) &
-             (t.Latitude <= yMax))) != 0
+   # # change the filter to actually filter the track if it enters the simulation grid - WD
+   #  return np.size(np.where((xMin <= t.Longitude) &
+   #           (t.Longitude <= xMax) &
+   #           (yMin <= t.Latitude) &
+   #           (t.Latitude <= yMax))) != 0
 
     # origianl code
     # return ((xMin <= t.Longitude.max()) and
