@@ -71,7 +71,8 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     recs = data[data > 0]
     # mu = scoreatpercentile(data, threshold)
     # mu = scoreatpercentile(recs, threshold) # calculate threshold using obersavations with speed values - WD
-    mu = recs[-6] # calculate threshold using obersavations with speed values - WD
+    # mu = recs[-6] # calculate threshold using obersavations with speed values - WD
+    mu = 60 # set shredshold to 60 m/s
 
 
     loc, scl, shp = [missingValue, missingValue, missingValue]
