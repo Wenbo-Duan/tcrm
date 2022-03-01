@@ -174,8 +174,6 @@ NumSimulations=500
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
-SeasonSeed=1
-TrackSeed=1
 
 [WindfieldInterface]
 profileType=holland
