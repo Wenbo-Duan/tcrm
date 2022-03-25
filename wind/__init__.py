@@ -7,7 +7,7 @@ calculations. It provides the radial profile models to define the
 primary vortex of the simulated TC, and bounday layer models that
 define the asymmetry induced by surface friction and forward motion of
 the TC over the earth's surface. The final output from the module is a
-netCDF file containing the maximum surface gust wind speed (a 0.2-second
+netCDF file containing the maximum surface gust wind speed (a 3-second
 duration gust wind speed, at 10 metres above ground level), along with the
 components (eastward and westward) that generated the wind gust and the minimum
 mean sea level pressure over the lifetime of the event. If multiple
@@ -604,13 +604,13 @@ class WindfieldGenerator(object):
                 'values': speed,
                 'dtype': 'float32',
                 'atts': {
-                    'long_name': 'Maximum 0.2-second gust wind speed',
+                    'long_name': 'Maximum 3-second gust wind speed',
                     'standard_name': 'wind_speed_of_gust',
                     'units': 'm/s',
                     'actual_range': (np.min(speed), np.max(speed)),
                     'valid_range': (0.0, 200.),
                     'cell_methods': ('time: maximum ',
-                                     'time: maximum (interval: 0.2 seconds)'),
+                                     'time: maximum (interval: 3 seconds)'),
                     'grid_mapping': 'crs'
                 }
             },
