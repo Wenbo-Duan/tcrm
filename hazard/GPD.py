@@ -72,7 +72,7 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     # mu = scoreatpercentile(data, threshold)
     # mu = scoreatpercentile(recs, threshold) # calculate threshold using obersavations with speed values - WD
     # mu = recs[-6] # calculate threshold using obersavations with speed values - WD
-    mu = 60 # set shredshold to 60 m/s
+    mu = 40 # set shredshold to 40 m/s
 
 
     loc, scl, shp = [missingValue, missingValue, missingValue]
@@ -107,7 +107,8 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     Rpeval = gpdReturnLevel(years, mu, shape, scale, rate)
     if shape > 0: # or Rpeval[0] < 0.0:
         log.debug("WD - return due to positive shape factor")
-        return Rp, loc, scl, shp
+        #return Rp, loc, scl, shp
+        return Rpeval, location, scale, shape # remove criteria for phsical upper bound
     else:
         return Rpeval, location, scale, shape
 
